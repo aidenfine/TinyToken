@@ -235,11 +235,14 @@ const AutoPopup = () => {
                         style={{
                             padding: "8px 16px",
                             border: "1px solid #ddd",
-                            background: "white",
+                            background: "#f3f4f6",
+                            color: "#374151",
                             borderRadius: "6px",
                             cursor: "pointer",
                             fontSize: "14px"
-                        }}>
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = "#e5e7eb"}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "#f3f4f6"}>
                         Cancel
                     </button>
                     <button
