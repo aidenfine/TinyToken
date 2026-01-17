@@ -13,6 +13,7 @@ export const config: PlasmoCSConfig = {
 const AutoPopup = () => {
     const [isVisible, setIsVisible] = useState(true)
     const [prompt, setPrompt] = useState("")
+    const [aggressiveness, setAggressiveness] = useState(50)
 
     useEffect(() => {
         console.log("AutoPopup loaded on:", window.location.href)
@@ -44,6 +45,7 @@ const AutoPopup = () => {
 
     const handleSubmit = () => {
         if (!prompt.trim()) return
+        console.log("Aggressiveness value:", aggressiveness + "%")
         insertPrompt(prompt)
         setIsVisible(false)
     }
@@ -53,6 +55,12 @@ const AutoPopup = () => {
             e.preventDefault()
             handleSubmit()
         }
+    }
+
+    const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseInt(e.target.value)
+        setAggressiveness(value)
+        console.log("Aggressiveness changed to:", value + "%")
     }
 
     if (!isVisible) return null
@@ -76,7 +84,7 @@ const AutoPopup = () => {
                     background: "white",
                     padding: "24px",
                     borderRadius: "12px",
-                    maxWidth: "500px",
+                    maxWidth: "550px",
                     width: "90%",
                     position: "relative",
                     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
@@ -97,7 +105,7 @@ const AutoPopup = () => {
                 </button>
 
                 {/* Logo instead of text title */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '16px' }}>
                     <span style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b' }}>Tiny</span>
                     <span style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b' }}>T</span>
 
@@ -171,60 +179,105 @@ const AutoPopup = () => {
                     <span style={{ fontSize: '20px', fontWeight: '700', color: '#1e293b' }}>ken</span>
                 </div>
 
-                <p style={{ margin: "0 0 16px 0", color: "#666", fontSize: "14px" }}>
-                    Enter your prompt and we'll send it to the chat
-                </p>
+                {/* Main content area with slider on the right */}
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+                    {/* Textarea and buttons */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Type your prompt here..."
+                            autoFocus
+                            style={{
+                                width: "100%",
+                                minHeight: "100px",
+                                padding: "12px",
+                                border: "1px solid #ddd",
+                                borderRadius: "8px",
+                                fontSize: "14px",
+                                fontFamily: "inherit",
+                                resize: "vertical",
+                                outline: "none",
+                                boxSizing: "border-box"
+                            }}
+                        />
 
-                <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your prompt here..."
-                    autoFocus
-                    style={{
-                        width: "100%",
-                        minHeight: "100px",
-                        padding: "12px",
-                        border: "1px solid #ddd",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontFamily: "inherit",
-                        resize: "vertical",
-                        outline: "none",
-                        boxSizing: "border-box"
-                    }}
-                />
+                        <div style={{ marginTop: "16px", display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                            <button
+                                onClick={() => setIsVisible(false)}
+                                style={{
+                                    padding: "8px 16px",
+                                    border: "1px solid #ddd",
+                                    background: "#f3f4f6",
+                                    color: "#374151",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "14px"
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "#e5e7eb"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "#f3f4f6"}>
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSubmit}
+                                style={{
+                                    padding: "8px 16px",
+                                    border: "none",
+                                    background: "#10a37f",
+                                    color: "white",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "14px",
+                                    fontWeight: "500"
+                                }}>
+                                Send to Chat
+                            </button>
+                        </div>
+                    </div>
 
-                <div style={{ marginTop: "16px", display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-                    <button
-                        onClick={() => setIsVisible(false)}
-                        style={{
-                            padding: "8px 16px",
-                            border: "1px solid #ddd",
-                            background: "#f3f4f6",
-                            color: "#374151",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "14px"
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = "#e5e7eb"}
-                        onMouseLeave={(e) => e.currentTarget.style.background = "#f3f4f6"}>
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        style={{
-                            padding: "8px 16px",
-                            border: "none",
-                            background: "#10a37f",
-                            color: "white",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            fontWeight: "500"
+                    {/* Vertical Slider on the right */}
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
+                        <label style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            color: '#374151',
+                            textAlign: 'center',
+                            marginBottom: '4px'
                         }}>
-                        Send to Chat
-                    </button>
+                            Aggressiveness
+                        </label>
+                        <input
+                            type="range"
+                            min="10"
+                            max="90"
+                            step="10"
+                            value={aggressiveness}
+                            onChange={handleSliderChange}
+                            style={{
+                                writingMode: 'vertical-lr',
+                                direction: 'rtl',
+                                height: '100px',
+                                width: '8px',
+                                cursor: 'pointer',
+                                accentColor: '#10a37f'
+                            }}
+                        />
+                        <span style={{
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: '#10a37f',
+                            minWidth: '40px',
+                            textAlign: 'center'
+                        }}>
+                            {aggressiveness}%
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
