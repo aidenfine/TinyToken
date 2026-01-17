@@ -1,5 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 import { useEffect, useState } from "react"
+import { insertPrompt } from "~utils/insertPrompt"
 
 export const config: PlasmoCSConfig = {
     matches: [
@@ -7,115 +8,6 @@ export const config: PlasmoCSConfig = {
         "https://chatgpt.com/*",
         "https://chat.openai.com/*"
     ]
-}
-
-// Function to insert prompt into the page
-const insertPrompt = (promptText: string) => {
-    console.log("Attempting to insert prompt:", promptText)
-
-    const isClaude = window.location.hostname.includes("claude.ai")
-    const isChatGPT = window.location.hostname.includes("chatgpt.com") ||
-        window.location.hostname.includes("chat.openai.com")
-
-    console.log("Is Claude:", isClaude, "Is ChatGPT:", isChatGPT)
-
-    if (isClaude) {
-        // Try multiple selectors for Claude
-        const selectors = [
-            'div[contenteditable="true"]',
-            '[contenteditable="true"]',
-            'div.ProseMirror',
-            'div[role="textbox"]'
-        ]
-
-        let input: HTMLElement | null = null
-        for (const selector of selectors) {
-            input = document.querySelector(selector) as HTMLElement
-            if (input) {
-                console.log("Found Claude input with selector:", selector)
-                break
-            }
-        }
-
-        if (input) {
-            input.focus()
-            input.textContent = promptText
-            input.dispatchEvent(new Event('input', { bubbles: true }))
-            input.dispatchEvent(new Event('change', { bubbles: true }))
-            console.log("Inserted into Claude input")
-
-            // Try to find and click the send button for Claude
-            setTimeout(() => {
-                const sendButton = document.querySelector('button[aria-label*="Send"]') as HTMLButtonElement
-                if (sendButton && !sendButton.disabled) {
-                    sendButton.click()
-                    console.log("Clicked Claude send button")
-                }
-            }, 100)
-        } else {
-            console.error("Could not find Claude input field")
-        }
-    } else if (isChatGPT) {
-        // Try multiple selectors for ChatGPT
-        const selectors = [
-            '#prompt-textarea',
-            'textarea[placeholder*="Message"]',
-            'textarea',
-            'div[contenteditable="true"]'
-        ]
-
-        let input: HTMLTextAreaElement | HTMLElement | null = null
-        for (const selector of selectors) {
-            input = document.querySelector(selector) as HTMLTextAreaElement
-            if (input) {
-                console.log("Found ChatGPT input with selector:", selector)
-                break
-            }
-        }
-
-        if (input) {
-            input.focus()
-            if (input instanceof HTMLTextAreaElement) {
-                input.value = promptText
-            } else {
-                input.textContent = promptText
-            }
-            input.dispatchEvent(new Event('input', { bubbles: true }))
-            input.dispatchEvent(new Event('change', { bubbles: true }))
-            console.log("Inserted into ChatGPT input")
-
-            // Try to find and click the send button for ChatGPT
-            setTimeout(() => {
-                const sendButtonSelectors = [
-                    'button[data-testid="send-button"]',
-                    'button[aria-label="Send prompt"]',
-                    'button[type="submit"]',
-                    'button svg[class*="icon"]' // Button with icon
-                ]
-
-                let sendButton: HTMLButtonElement | null = null
-                for (const selector of sendButtonSelectors) {
-                    const element = document.querySelector(selector)
-                    if (element) {
-                        sendButton = element.closest('button') as HTMLButtonElement
-                        if (sendButton) {
-                            console.log("Found ChatGPT send button with selector:", selector)
-                            break
-                        }
-                    }
-                }
-
-                if (sendButton && !sendButton.disabled) {
-                    sendButton.click()
-                    console.log("Clicked ChatGPT send button")
-                } else {
-                    console.log("Send button not found or disabled")
-                }
-            }, 100)
-        } else {
-            console.error("Could not find ChatGPT input field")
-        }
-    }
 }
 
 const AutoPopup = () => {
