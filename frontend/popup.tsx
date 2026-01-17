@@ -3,12 +3,15 @@ import { useState } from "react"
 function IndexPopup() {
   const [prompt, setPrompt] = useState("")
   const [status, setStatus] = useState("")
+  const [aggressiveness, setAggressiveness] = useState(50)
 
   const handleSubmit = async () => {
     if (!prompt.trim()) {
       setStatus("Please enter a prompt");
       return;
     }
+
+    console.log("Aggressiveness value:", aggressiveness + "%")
 
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -30,6 +33,12 @@ function IndexPopup() {
     }
   }
 
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value)
+    setAggressiveness(value)
+    console.log("Aggressiveness changed to:", value + "%")
+  }
+
   return (
     <div
       style={{
@@ -40,7 +49,7 @@ function IndexPopup() {
         backgroundColor: "#fff"
       }}>
       {/* Logo instead of text title */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '16px' }}>
         <span style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>Tiny</span>
         <span style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>T</span>
 
@@ -114,54 +123,95 @@ function IndexPopup() {
         <span style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b' }}>ken</span>
       </div>
 
-      <p style={{
-        margin: "0 0 16px 0",
-        fontSize: "14px",
-        color: "#666"
-      }}>
-        Enter your prompt and we'll send it to the chat
-      </p>
+      {/* Main content area with slider on the right */}
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'stretch' }}>
+        {/* Textarea and button */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your prompt here... (Shift+Enter for new line)"
+            autoFocus
+            style={{
+              width: "100%",
+              minHeight: "150px",
+              padding: "12px",
+              border: "2px solid #e5e7eb",
+              borderRadius: "8px",
+              fontSize: "14px",
+              fontFamily: "inherit",
+              resize: "vertical",
+              outline: "none",
+              boxSizing: "border-box",
+              lineHeight: "1.5"
+            }}
+          />
 
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onKeyPress={handleKeyPress}
-        placeholder="Type your prompt here... (Shift+Enter for new line)"
-        autoFocus
-        style={{
-          width: "100%",
-          minHeight: "150px",
-          padding: "12px",
-          border: "2px solid #e5e7eb",
-          borderRadius: "8px",
-          fontSize: "14px",
-          fontFamily: "inherit",
-          resize: "vertical",
-          outline: "none",
-          boxSizing: "border-box",
-          lineHeight: "1.5"
-        }}
-      />
+          <button
+            onClick={handleSubmit}
+            style={{
+              width: "100%",
+              marginTop: "16px",
+              padding: "12px",
+              border: "none",
+              background: "#10a37f",
+              color: "white",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "15px",
+              fontWeight: "600",
+              transition: "background 0.2s"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = "#0d8c6f"}
+            onMouseLeave={(e) => e.currentTarget.style.background = "#10a37f"}>
+            Send to Chat
+          </button>
+        </div>
 
-      <button
-        onClick={handleSubmit}
-        style={{
-          width: "100%",
-          marginTop: "16px",
-          padding: "12px",
-          border: "none",
-          background: "#10a37f",
-          color: "white",
-          borderRadius: "8px",
-          cursor: "pointer",
-          fontSize: "15px",
-          fontWeight: "600",
-          transition: "background 0.2s"
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.background = "#0d8c6f"}
-        onMouseLeave={(e) => e.currentTarget.style.background = "#10a37f"}>
-        Send to Chat
-      </button>
+        {/* Vertical Slider on the right */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <label style={{
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#374151',
+            textAlign: 'center',
+            marginBottom: '4px'
+          }}>
+            Aggressiveness
+          </label>
+          <input
+            type="range"
+            min="10"
+            max="90"
+            step="10"
+            value={aggressiveness}
+            onChange={handleSliderChange}
+            style={{
+              writingMode: 'vertical-lr',
+              direction: 'rtl',
+              height: '150px',
+              width: '8px',
+              cursor: 'pointer',
+              accentColor: '#10a37f'
+            }}
+          />
+          <span style={{
+            fontSize: '14px',
+            fontWeight: '600',
+            color: '#10a37f',
+            minWidth: '40px',
+            textAlign: 'center'
+          }}>
+            {aggressiveness}%
+          </span>
+        </div>
+      </div>
 
       {status && (
         <p style={{
