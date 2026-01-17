@@ -6,51 +6,22 @@ function IndexPopup() {
 
   const handleSubmit = async () => {
     if (!prompt.trim()) {
-      setStatus("Please enter a prompt")
-      return
+      setStatus("Please enter a prompt");
+      return;
     }
 
     try {
-      // Get the active tab
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab.id) return setStatus("No active tab found");
 
-      console.log("Active tab:", tab.url, "Tab ID:", tab.id)
-
-      if (!tab.id) {
-        setStatus("No active tab found")
-        return
-      }
-
-      // Check if we're on ChatGPT or Claude
-      const isClaude = tab.url?.includes("claude.ai")
-      const isChatGPT = tab.url?.includes("chatgpt.com") || tab.url?.includes("chat.openai.com")
-
-      console.log("Is Claude:", isClaude, "Is ChatGPT:", isChatGPT)
-
-      if (!isClaude && !isChatGPT) {
-        setStatus("Please open ChatGPT or Claude.ai first")
-        return
-      }
-
-      // Send message to content script to insert the prompt
-      console.log("Sending message to tab:", tab.id)
-      const response = await chrome.tabs.sendMessage(tab.id, {
-        type: "INSERT_PROMPT",
-        prompt: prompt
-      })
-
-      console.log("Response from content script:", response)
-
-      setStatus("Prompt sent! ✓")
-      setPrompt("")
-
-      // Clear status after 2 seconds
-      setTimeout(() => setStatus(""), 2000)
-    } catch (error) {
-      console.error("Error sending message:", error)
-      setStatus(`Error: ${error.message}`)
+      await chrome.tabs.sendMessage(tab.id, { type: "INSERT_PROMPT", prompt });
+      setStatus("Prompt sent! ✓");
+      setPrompt("");
+      setTimeout(() => setStatus(""), 2000);
+    } catch (error: any) {
+      setStatus(`Error: ${error.message}`);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
